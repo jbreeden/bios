@@ -22,7 +22,8 @@
     "io",
     "command-line",
     "cli",
-    "prompt"
+    "prompt",
+    "fluent"
   ],
   "author": "Jared Breeden <jared.breeden@gmail.com>",
   "license": "MIT",
