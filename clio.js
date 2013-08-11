@@ -1,9 +1,6 @@
 var EventEmitter = require('events').EventEmitter;
 var chainlang = require('chainlang');
 
-var clio = {};
-module.exports = clio;
-
 process.stdin.setEncoding('utf8');
 process.stdout.setEncoding('utf8');
 
@@ -67,16 +64,17 @@ var lineBuffer = (function(){
     return buffer;
 }());
 
-// Standard API
-// ------------
+// Core Logic
+// ----------
 
 var defaultPromptOptions = {
     prefix: '',
     delimiter: ': '
 };
 
-// Prompt the user for input
-clio.prompt = function (prompt, opt, callback) {
+// Prompt the user for input. `prompt` mostly sanitizes input and routes
+// to the appropriate method for actual prompting
+function prompt(prompt, opt, callback) {
     // Normalize arguments
     if(arguments.length === 2){
         // If only 2 arguments, assuming opt was omitted
@@ -84,15 +82,16 @@ clio.prompt = function (prompt, opt, callback) {
         opt = defaultPromptOptions;
     } else {
         opt.prefix = opt.prefix || defaultPromptOptions.prefix;
-        opt.suffix = opt.delimiter || defaultPromptOptions.delimiter;
+        opt.delimiter = opt.delimiter || defaultPromptOptions.delimiter;
     }
     
     if(prompt.constructor.name === 'Array'){
         arrayPrompt(prompt, opt, callback);
-        return;
+    } else if (typeof prompt === 'string') {
+        stringPrompt(prompt, opt, callback);
+    } else {
+        throw 'Invalid prompt argument';   
     }
-    
-    prompt(prompt, opt, callback);
 };
 
 // Prompts for a series of values, then calls `callback`
@@ -103,7 +102,7 @@ function arrayPrompt(promptArray, opt, callback){
     promptForElementAt(0);
     
     function promptForElementAt(index){
-        prompt(promptArray[index], opt, function(answer){
+        stringPrompt(promptArray[index], opt, function(answer){
             response[promptArray[index]] = answer;
             
             index += 1;
@@ -116,8 +115,8 @@ function arrayPrompt(promptArray, opt, callback){
     }
 }
 
-// Internal prompt function assumes inputs are sanitized/normalized
-function prompt(prompt, opt, callback){
+// `stringPrompt` function assumes inputs are sanitized/normalized
+function stringPrompt(prompt, opt, callback){
     process.stdout.write(opt.prefix + prompt + opt.delimiter);
     lineBuffer.onNextLine(function(line){
          callback(line);
@@ -125,7 +124,7 @@ function prompt(prompt, opt, callback){
 }
 
 // y/n confirmation
-clio.confirm = function(message, callback) {
+function confirm(message, callback) {
     process.stdout.write(message + ' (y/n): ');
     lineBuffer.onNextLine(function(answer){
         if(answer.toLowerCase()[0] === 'y'){
@@ -137,15 +136,75 @@ clio.confirm = function(message, callback) {
 };
 
 // Read a line from stdin
-clio.readLine = function(callback){
+function readLine(callback) {
     lineBuffer.onNextLine(callback);
 };
 
-// Fluent API
+// Public API
 // ----------
 
 // Specification object to be passed to `chainlang.create`
-var fluentClio = {};
+var clio = {};
 
 // `define` is a convenience function for building the spec object
-var define = chainlang.append.bind(fluentClio);
+var define = chainlang.append.bind(clio);
+
+define('prompt', function(message, opt, callback){
+    if(arguments.length === 2){
+        callback = opt;
+        opt = {};
+    }
+    prompt(message, opt, callback);
+    return null;
+});
+
+define('prompt.for', 
+    function promptFor(message) {
+        this._data.promptFields = [message];
+        return this._private.nodes.for;
+    }
+);
+
+define('_private.nodes.for.and', 
+    function andPromptFor(message) {
+        this._data.promptFields.push(message);
+        return this._private.nodes.for;
+    }
+);
+
+define('_private.nodes.for.then', 
+   function thenAfterPrompt(callback){
+        prompt(this._data.promptFields, callback);
+        
+        // Clean up temporary data (avoiding delete for performance reasons)
+        this._data.promptFields = undefined;
+        
+        // Prevent further chaining
+        return null;
+    }
+);
+
+define('confirm', 
+    function(message, callback){
+        if (callback === undefined) {
+            this._data.confirmationMessage = message;
+            return this._private.nodes.confirm;   
+        } else {
+            confirm(message, callback);
+        }
+    }
+);
+
+define('_private.nodes.confirm.then', function(callback){
+    clio.confirm(this._data.confirmationMessage, callback);
+    
+    // Clean up temporary data (avoiding delete for performance reasons)
+    this._data.confirmationMessage = undefined;
+    
+    // Prevent further chaining
+    return null;
+});
+       
+clio = chainlang.create(clio);
+
+module.exports = clio;
