@@ -79,7 +79,7 @@ function write(str){
 
 // Write a line to stdout
 function writeLine(line) {
-    process.stdout.write(line + '\n');
+    process.stdout.write(( line !== undefined ? line : '') + '\n');
 }
 
 var defaultPromptOptions = {
@@ -227,14 +227,24 @@ define('prompt',
 
 define('prompt.for', 
     function (message) {
-        this._data.promptFields = [message];
+        if(message.constructor.name === 'Array'){
+            this._data.promptFields = message;
+        } else {
+            this._data.promptFields = [message];
+        }
+        
         return this._private.nodes.for;
     }
 );
 
 define('_private.nodes.for.and', 
     function (message) {
-        this._data.promptFields.push(message);
+        if(message.constructor.name === 'Array'){
+            this._data.promptFields = 
+                this._data.promptFields.concat(message);
+        } else {
+            this._data.promptFields.push(message);   
+        }
         return this._private.nodes.for;
     }
 );
