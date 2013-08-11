@@ -2,7 +2,7 @@ clio
 ====
 
 Library to ease the creation of command-line applications for nodejs. `clio` offers both standard and fluent (provided
-by [chainlang](https://npmjs.org/package/chainlang) interfaces.
+by [chainlang](https://npmjs.org/package/chainlang)) interfaces.
 
 !!! Warning !!!
 ---------------
