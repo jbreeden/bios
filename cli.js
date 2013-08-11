@@ -246,7 +246,7 @@ define('_private.nodes.for.then',
     }
 );
 
-define('confirm', 
+define('confirm',
     function (message, callback) {
         if (callback === undefined) {
             this._data.confirmationMessage = message;
