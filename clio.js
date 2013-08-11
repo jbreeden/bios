@@ -140,6 +140,40 @@ function readLine(callback) {
     lineBuffer.onNextLine(callback);
 };
 
+function select(message, choices, callback){
+    // Normalize input
+    if(arguments.length === 2){
+        // Assume message omitted
+        callback = choices;
+        choices = message;
+        message = undefined;
+    }
+    
+    if(message){
+        process.stdout.write(message + '\n');   
+    }
+    
+    var keys = Object.keys(choices);
+    
+    keys.forEach(function(key){
+        process.stdout.write('  ' + key + ': ' + choices[key] + '\n');   
+    });
+    
+    tryGetSelection();
+    
+    function tryGetSelection() {
+        process.stdout.write('Enter selection: ');1
+        lineBuffer.onNextLine(function(input){
+            if(choices[input] === undefined){
+                process.stdout.write('Invalid selection. Please try again.\n');
+                tryGetSelection();
+            } else {
+                callback(choices[input]);
+            }
+        });        
+    }
+}
+
 // Public API
 // ----------
 
@@ -195,15 +229,54 @@ define('confirm',
     }
 );
 
-define('_private.nodes.confirm.then', function(callback){
-    clio.confirm(this._data.confirmationMessage, callback);
-    
-    // Clean up temporary data (avoiding delete for performance reasons)
-    this._data.confirmationMessage = undefined;
-    
-    // Prevent further chaining
+define('_private.nodes.confirm.then', 
+    function(callback){
+        clio.confirm(this._data.confirmationMessage, callback);
+        
+        // Clean up temporary data (avoiding delete for performance reasons)
+        this._data.confirmationMessage = undefined;
+        
+        // Prevent further chaining
+        return null;
+    }
+);
+
+define('select', function(message, choices, callback){
+    select(message, choices, callback);
     return null;
 });
+
+define('select.a', 
+    function(toSelect){
+        this._data.selectionMessage = 'Select a ' + toSelect;
+        return this._private.nodes.selectFrom;
+    }
+);
+
+define('select.an',
+    function(toSelect){
+        this._data.selectionMessage = 'Select an ' + toSelect;
+        return this._private.nodes.selectFrom;
+    }
+);
+
+define('_private.nodes.selectFrom.from', 
+    function(choices){
+        this._data.selectionChoices = choices;
+        return this._private.nodes.selectFromThen;
+    }
+);
+
+define('_private.nodes.selectFromThen.then',
+    function(callback){
+        select(
+            this._data.selectionMessage,
+            this._data.selectionChoices,
+            callback
+        );
+        return null;
+    }
+);
        
 clio = chainlang.create(clio);
 
