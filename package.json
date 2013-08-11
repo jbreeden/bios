@@ -2,7 +2,7 @@
   "name": "fluent-cli",
   "version": "0.0.0",
   "description": "Command-line io utilities for nodejs",
-  "main": "clio.js",
+  "main": "cli.js",
   "directories": {
     "doc": "docs"
   },

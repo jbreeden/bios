@@ -1,49 +1,49 @@
-var clio = require('./clio');
+var cli = require('./cli');
 var util = require('util');
 
-clio.write('\n-- Testing Standard Prompt --\n\n');
+cli.write('\n-- Testing Standard Prompt --\n\n');
 
-clio.prompt('This is a standard prompt', function(response){
-    console.log('Response was: ' + response);
+cli.prompt('This is a standard prompt', function(response){
+    cli.writeLine('Response was: ' + response);
     doFluentPromptTest();
 });
 
 function doFluentPromptTest(){
-    clio.write('\n-- Testing Fluent Prompt --\n\n');
+    cli.write('\n-- Testing Fluent Prompt --\n\n');
     
-    clio.prompt
+    cli.prompt
         .for('name')
         .and('email')
         .then(function(response){
-            console.log('name was: ' + response.name);
-            console.log('email was: ' + response.email);
+            cli.writeLine('name was: ' + response.name);
+            cli.writeLine('email was: ' + response.email);
             doStandardConfirmationTest();
         });
 }
 
 function doStandardConfirmationTest() {
-    clio.write('\n-- Testing Standard Confirmation --\n\n');
+    cli.write('\n-- Testing Standard Confirmation --\n\n');
     
-    clio.confirm('Does the standard confirm work?', function(response){
-        console.log('confirmation was: ' + response);
+    cli.confirm('Does the standard confirm work?', function(response){
+        cli.writeLine('confirmation was: ' + response);
         doFluentConfirmationTest();
     });
 }
 
 function doFluentConfirmationTest() {
-    clio.write('\n-- Testing Fluent Confirmation --\n\n');
+    cli.write('\n-- Testing Fluent Confirmation --\n\n');
     
-    clio.confirm('Does the fluent confirm work?')
+    cli.confirm('Does the fluent confirm work?')
         .then(function(response){
-            console.log('confirmation was: ' + response);
+            cli.writeLine('confirmation was: ' + response);
             doStandardSelectTest();
         });
 }
 
 function doStandardSelectTest(){
-    clio.write('\n-- Testing Standard Selection --\n\n');
+    cli.write('\n-- Testing Standard Selection --\n\n');
     
-    clio.select(
+    cli.select(
         "Select a standard option", 
         { 
             1: 'Do this',
@@ -51,22 +51,22 @@ function doStandardSelectTest(){
             3: 'Do this other thing'
         },
         function(selection){
-            console.log('Selection was: ' + selection);
+            cli.writeLine('Selection was: ' + selection);
             doFluentSelectTest();
         });
 }
 
 function doFluentSelectTest(){
-    clio.write('\n-- Testing Fluent Selection --\n\n');
+    cli.write('\n-- Testing Fluent Selection --\n\n');
     
-    clio.select.a('fluent option')
+    cli.select.a('fluent option')
         .from({
             1: 'Do this fluently',
             2: 'Do that fluently',
             3: 'Do this other thing fluently'
         })
         .then(function(selection){
-            console.log('Selection was: ' + selection);
+            cli.writeLine('Selection was: ' + selection);
         });
 }
 

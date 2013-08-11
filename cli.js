@@ -188,10 +188,10 @@ function select(message, choices, callback){
 // ----------
 
 // Specification object to be passed to `chainlang.create`
-var clio = {};
+var cli = {};
 
 // `define` is a convenience function for building the spec object
-var define = chainlang.append.bind(clio);
+var define = chainlang.append.bind(cli);
 
 define('readLine',
     function (callback) {
@@ -259,7 +259,7 @@ define('confirm',
 
 define('_private.nodes.confirm.then', 
     function (callback) {
-        clio.confirm(this._data.confirmationMessage, callback);
+        confirm(this._data.confirmationMessage, callback);
         return null;
     }
 );
@@ -303,4 +303,4 @@ define('_private.nodes.selectFromThen.then',
     }
 );
 
-module.exports = chainlang.create(clio);
+module.exports = chainlang.create(cli);

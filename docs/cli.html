@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>cli.js</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+    
+    <ul class="sections">
+        
+          <li id="title">
+              <div class="annotation">
+                  <h1>cli.js</h1>
+              </div>
+          </li>
+        
+        
+        
+        <li id="section-1">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
+<span class="keyword">var</span> chainlang = require(<span class="string">'chainlang'</span>);
+
+process.stdin.setEncoding(<span class="string">'utf8'</span>);
+process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <h2>Custom Line-By-Line Input Buffer</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> lineBuffer = (<span class="keyword">function</span>(){
+    <span class="keyword">var</span> buffer = {};
+    buffer.lines = [];
+    buffer.lastPartial = <span class="string">''</span>;
+    buffer.emitter = <span class="keyword">new</span> EventEmitter();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Register a listener for the next line</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    buffer.onNextLine = <span class="keyword">function</span>(callback){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Call the callback once a line is ready</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        buffer.emitter.once(<span class="string">'line'</span>, callback);
+    };</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>On new line listener</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    buffer.emitter.on(<span class="string">'newListener'</span>, <span class="keyword">function</span>(event){
+        <span class="keyword">if</span>(event !== <span class="string">'line'</span>){
+            <span class="keyword">return</span>;
+        }
+        
+        <span class="keyword">if</span>(buffer.lines.length &gt; <span class="number">0</span>){
+            <span class="keyword">var</span> line = buffer.lines.shift();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-7">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>listeners are not bound until after the newListener event handlers
+are run, so we&#39;ll fire the event on nextTick</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            process.nextTick(
+                <span class="keyword">function</span>(){buffer.emitter.emit(<span class="string">'line'</span>, line);}
+            );
+        } <span class="keyword">else</span> {
+            process.stdin.once(<span class="string">'data'</span>, onNewInput);
+            process.stdin.resume();
+        }
+    });
+    
+    <span class="function"><span class="keyword">function</span> <span class="title">onNewInput</span><span class="params">(data)</span>{</span>
+        <span class="keyword">var</span> newLines = data.split(<span class="string">'\n'</span>);
+        
+        buffer.lines = buffer.lines.concat(newLines);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-8">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>Concatenate any partial line from the last data read
+onto the first line of the new data result</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        buffer.lines[<span class="number">0</span>] = buffer.lastPartial + buffer.lines[<span class="number">0</span>];</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>If the last element of the data spit was an empty string,
+as when data ends in a &#39;\n&#39;, the lastPartial will be set back
+to an empty string here, no harm done. Otherwise, the end of the
+data block was not a complete line and will be saved off here.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        buffer.lastPartial = buffer.lines.pop();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Pause input until we&#39;re out of lines again</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        process.stdin.pause();
+        
+        <span class="keyword">var</span> line = buffer.lines.shift();
+        buffer.emitter.emit(<span class="string">'line'</span>, line);
+    }
+    
+    <span class="keyword">return</span> buffer;
+}());</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <h2>Core Logic</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Read a line from stdin</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">readLine</span><span class="params">(callback)</span> {</span>
+    lineBuffer.onNextLine(callback);
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Write a string to stdout</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">write</span><span class="params">(str)</span>{</span>
+    process.stdout.write(str);
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Write a line to stdout</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">writeLine</span><span class="params">(line)</span> {</span>
+    process.stdout.write(line + <span class="string">'\n'</span>);
+}
+
+<span class="keyword">var</span> defaultPromptOptions = {
+    prefix: <span class="string">''</span>,
+    delimiter: <span class="string">': '</span>
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Prompt the user for input. <code>prompt</code> mostly sanitizes input and routes
+to the appropriate method for actual prompting</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">prompt</span><span class="params">(prompt, opt, callback)</span> {</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Normalize arguments</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>If only 2 arguments, assuming opt was omitted</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        callback = opt;
+        opt = defaultPromptOptions;
+    } <span class="keyword">else</span> {
+        opt.prefix = opt.prefix || defaultPromptOptions.prefix;
+        opt.delimiter = opt.delimiter || defaultPromptOptions.delimiter;
+    }
+    
+    <span class="keyword">if</span>(prompt.constructor.name === <span class="string">'Array'</span>){
+        arrayPrompt(prompt, opt, callback);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> prompt === <span class="string">'string'</span>) {
+        stringPrompt(prompt, opt, callback);
+    } <span class="keyword">else</span> {
+        <span class="keyword">throw</span> <span class="string">'Invalid prompt argument'</span>;   
+    }
+};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Prompts for a series of values, then calls <code>callback</code>
+with an object mapping each prompt to its response</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">arrayPrompt</span><span class="params">(promptArray, opt, callback)</span>{</span>
+    <span class="keyword">var</span> response = {};
+    
+    promptForElementAt(<span class="number">0</span>);
+    
+    <span class="function"><span class="keyword">function</span> <span class="title">promptForElementAt</span><span class="params">(index)</span>{</span>
+        stringPrompt(promptArray[index], opt, <span class="keyword">function</span>(answer){
+            response[promptArray[index]] = answer;
+            
+            index += <span class="number">1</span>;
+            <span class="keyword">if</span>(index &lt; promptArray.length){
+                promptForElementAt(index);
+            } <span class="keyword">else</span> {
+                callback(response);   
+            }
+        });
+    }
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+              <p><code>stringPrompt</code> function assumes inputs are sanitized/normalized</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">stringPrompt</span><span class="params">(prompt, opt, callback)</span>{</span>
+    process.stdout.write(opt.prefix + prompt + opt.delimiter);
+    lineBuffer.onNextLine(<span class="keyword">function</span>(line){
+         callback(line);
+    });
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-20">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+              <p>y/n confirmation</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">confirm</span><span class="params">(message, callback)</span> {</span>
+    process.stdout.write(message + <span class="string">' (y/n): '</span>);
+    lineBuffer.onNextLine(<span class="keyword">function</span>(answer){
+        <span class="keyword">if</span>(answer.toLowerCase()[<span class="number">0</span>] === <span class="string">'y'</span>){
+            callback(<span class="literal">true</span>);
+        } <span class="keyword">else</span> {
+            callback(<span class="literal">false</span>);
+        }
+    });
+};
+
+<span class="function"><span class="keyword">function</span> <span class="title">select</span><span class="params">(message, choices, callback)</span>{</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-21">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>Normalize input</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Assume message omitted</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        callback = choices;
+        choices = message;
+        message = <span class="literal">undefined</span>;
+    }
+    
+    <span class="keyword">if</span>(message){
+        process.stdout.write(message + <span class="string">'\n'</span>);   
+    }
+    
+    <span class="keyword">var</span> keys = Object.keys(choices);
+    
+    keys.forEach(<span class="keyword">function</span>(key){
+        process.stdout.write(<span class="string">'  '</span> + key + <span class="string">': '</span> + choices[key] + <span class="string">'\n'</span>);   
+    });
+    
+    tryGetSelection();
+    
+    <span class="function"><span class="keyword">function</span> <span class="title">tryGetSelection</span><span class="params">()</span> {</span>
+        process.stdout.write(<span class="string">'Enter selection: '</span>);<span class="number">1</span>
+        lineBuffer.onNextLine(<span class="keyword">function</span>(input){
+            <span class="keyword">if</span>(keys.indexOf(input) === -<span class="number">1</span>){
+                process.stdout.write(<span class="string">'Invalid selection. Please try again.\n'</span>);
+                tryGetSelection();
+            } <span class="keyword">else</span> {
+                callback(choices[input]);
+            }
+        });        
+    }
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <h2>Public API</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Specification object to be passed to <code>chainlang.create</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> cli = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p><code>define</code> is a convenience function for building the spec object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> define = chainlang.append.bind(cli);
+
+define(<span class="string">'readLine'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
+        readLine(callback);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'write'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">(str)</span> {</span>
+        write(str);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'writeLine'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(line)</span> {</span>
+        writeLine(line);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'prompt'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(message, opt, callback)</span> {</span>
+        <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){
+            callback = opt;
+            opt = {};
+        }
+        prompt(message, opt, callback);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'prompt.for'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
+        <span class="keyword">this</span>._data.promptFields = [message];
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
+    }
+);
+
+define(<span class="string">'_private.nodes.for.and'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
+        <span class="keyword">this</span>._data.promptFields.push(message);
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
+    }
+);
+
+define(<span class="string">'_private.nodes.for.then'</span>, 
+   <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
+        prompt(<span class="keyword">this</span>._data.promptFields, callback);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'confirm'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(message, callback)</span> {</span>
+        <span class="keyword">if</span> (callback === <span class="literal">undefined</span>) {
+            <span class="keyword">this</span>._data.confirmationMessage = message;
+            <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.confirm;   
+        } <span class="keyword">else</span> {
+            confirm(message, callback);
+        }
+    }
+);
+
+define(<span class="string">'_private.nodes.confirm.then'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
+        confirm(<span class="keyword">this</span>._data.confirmationMessage, callback);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'select'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(message, choices, callback)</span> {</span>
+        select(message, choices, callback);
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'select.a'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(toSelect)</span> {</span>
+        <span class="keyword">this</span>._data.selectionMessage = <span class="string">'Select a '</span> + toSelect;
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFrom;
+    }
+);
+
+define(<span class="string">'select.an'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">(toSelect)</span> {</span>
+        <span class="keyword">this</span>._data.selectionMessage = <span class="string">'Select an '</span> + toSelect;
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFrom;
+    }
+);
+
+define(<span class="string">'_private.nodes.selectFrom.from'</span>, 
+    <span class="function"><span class="keyword">function</span> <span class="params">(choices)</span> {</span>
+        <span class="keyword">this</span>._data.selectionChoices = choices;
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFromThen;
+    }
+);
+
+define(<span class="string">'_private.nodes.selectFromThen.then'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
+        select(
+            <span class="keyword">this</span>._data.selectionMessage,
+            <span class="keyword">this</span>._data.selectionChoices,
+            callback
+        );
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+module.exports = chainlang.create(cli);</pre></div></div>
+            
+        </li>
+        
+    </ul>
+  </div>
+</body>
+</html>
