@@ -11,6 +11,8 @@ all around unstable. But, if you're interested in where it's going... here's an 
 
 
 ```
+var cli = require('fluent-cli');
+
 cli.write('\n-- Testing Standard Prompt --\n\n');
 
 cli.prompt('This is a standard prompt', function(response){
