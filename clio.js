@@ -1,10 +1,14 @@
 var EventEmitter = require('events').EventEmitter;
+var chainlang = require('chainlang');
 
-var cli = {};
-module.exports = cli;
+var clio = {};
+module.exports = clio;
 
 process.stdin.setEncoding('utf8');
 process.stdout.setEncoding('utf8');
+
+// Custom Line-By-Line Input Buffer
+// --------------------------------
 
 var lineBuffer = (function(){
     var buffer = {};
@@ -33,7 +37,7 @@ var lineBuffer = (function(){
                 function(){buffer.emitter.emit('line', line);}
             );
         } else {
-            process.stdin.on('data', onNewInput);
+            process.stdin.once('data', onNewInput);
             process.stdin.resume();
         }
     });
@@ -63,16 +67,65 @@ var lineBuffer = (function(){
     return buffer;
 }());
 
+// Standard API
+// ------------
+
+var defaultPromptOptions = {
+    prefix: '',
+    delimiter: ': '
+};
+
 // Prompt the user for input
-cli.prompt = function (prompt, callback) {
-    process.stdout.write(prompt);
+clio.prompt = function (prompt, opt, callback) {
+    // Normalize arguments
+    if(arguments.length === 2){
+        // If only 2 arguments, assuming opt was omitted
+        callback = opt;
+        opt = defaultPromptOptions;
+    } else {
+        opt.prefix = opt.prefix || defaultPromptOptions.prefix;
+        opt.suffix = opt.delimiter || defaultPromptOptions.delimiter;
+    }
+    
+    if(prompt.constructor.name === 'Array'){
+        arrayPrompt(prompt, opt, callback);
+        return;
+    }
+    
+    prompt(prompt, opt, callback);
+};
+
+// Prompts for a series of values, then calls `callback`
+// with an object mapping each prompt to its response
+function arrayPrompt(promptArray, opt, callback){
+    var response = {};
+    
+    promptForElementAt(0);
+    
+    function promptForElementAt(index){
+        prompt(promptArray[index], opt, function(answer){
+            response[promptArray[index]] = answer;
+            
+            index += 1;
+            if(index < promptArray.length){
+                promptForElementAt(index);
+            } else {
+                callback(response);   
+            }
+        });
+    }
+}
+
+// Internal prompt function assumes inputs are sanitized/normalized
+function prompt(prompt, opt, callback){
+    process.stdout.write(opt.prefix + prompt + opt.delimiter);
     lineBuffer.onNextLine(function(line){
          callback(line);
     });
-};
+}
 
-// Y/N confirmation
-cli.confirm = function(message, callback) {
+// y/n confirmation
+clio.confirm = function(message, callback) {
     process.stdout.write(message + ' (y/n): ');
     lineBuffer.onNextLine(function(answer){
         if(answer.toLowerCase()[0] === 'y'){
@@ -84,6 +137,15 @@ cli.confirm = function(message, callback) {
 };
 
 // Read a line from stdin
-cli.readLine = function(callback){
+clio.readLine = function(callback){
     lineBuffer.onNextLine(callback);
 };
+
+// Fluent API
+// ----------
+
+// Specification object to be passed to `chainlang.create`
+var fluentClio = {};
+
+// `define` is a convenience function for building the spec object
+var define = chainlang.append.bind(fluentClio);
