@@ -67,6 +67,21 @@ var lineBuffer = (function(){
 // Core Logic
 // ----------
 
+// Read a line from stdin
+function readLine(callback) {
+    lineBuffer.onNextLine(callback);
+};
+
+// Write a string to stdout
+function write(str){
+    process.stdout.write(str);
+}
+
+// Write a line to stdout
+function writeLine(line) {
+    process.stdout.write(line + '\n');
+}
+
 var defaultPromptOptions = {
     prefix: '',
     delimiter: ': '
@@ -135,11 +150,6 @@ function confirm(message, callback) {
     });
 };
 
-// Read a line from stdin
-function readLine(callback) {
-    lineBuffer.onNextLine(callback);
-};
-
 function select(message, choices, callback){
     // Normalize input
     if(arguments.length === 2){
@@ -164,7 +174,7 @@ function select(message, choices, callback){
     function tryGetSelection() {
         process.stdout.write('Enter selection: ');1
         lineBuffer.onNextLine(function(input){
-            if(choices[input] === undefined){
+            if(keys.indexOf(input) === -1){
                 process.stdout.write('Invalid selection. Please try again.\n');
                 tryGetSelection();
             } else {
@@ -183,43 +193,61 @@ var clio = {};
 // `define` is a convenience function for building the spec object
 var define = chainlang.append.bind(clio);
 
-define('prompt', function(message, opt, callback){
-    if(arguments.length === 2){
-        callback = opt;
-        opt = {};
+define('readLine',
+    function (callback) {
+        readLine(callback);
+        return null;
     }
-    prompt(message, opt, callback);
-    return null;
-});
+);
+
+define('write',
+    function (str) {
+        write(str);
+        return null;
+    }
+);
+
+define('writeLine', 
+    function (line) {
+        writeLine(line);
+        return null;
+    }
+);
+
+define('prompt', 
+    function (message, opt, callback) {
+        if(arguments.length === 2){
+            callback = opt;
+            opt = {};
+        }
+        prompt(message, opt, callback);
+        return null;
+    }
+);
 
 define('prompt.for', 
-    function promptFor(message) {
+    function (message) {
         this._data.promptFields = [message];
         return this._private.nodes.for;
     }
 );
 
 define('_private.nodes.for.and', 
-    function andPromptFor(message) {
+    function (message) {
         this._data.promptFields.push(message);
         return this._private.nodes.for;
     }
 );
 
 define('_private.nodes.for.then', 
-   function thenAfterPrompt(callback){
+   function (callback) {
         prompt(this._data.promptFields, callback);
-        
-        // Clean up temporary data (avoiding delete for performance reasons)
-        this._data.promptFields = undefined;
-        
-        // Prevent further chaining
         return null;
     }
 );
 
 define('confirm', 
-    function(message, callback){
+    function (message, callback) {
         if (callback === undefined) {
             this._data.confirmationMessage = message;
             return this._private.nodes.confirm;   
@@ -230,45 +258,42 @@ define('confirm',
 );
 
 define('_private.nodes.confirm.then', 
-    function(callback){
+    function (callback) {
         clio.confirm(this._data.confirmationMessage, callback);
-        
-        // Clean up temporary data (avoiding delete for performance reasons)
-        this._data.confirmationMessage = undefined;
-        
-        // Prevent further chaining
         return null;
     }
 );
 
-define('select', function(message, choices, callback){
-    select(message, choices, callback);
-    return null;
-});
+define('select', 
+    function (message, choices, callback) {
+        select(message, choices, callback);
+        return null;
+    }
+);
 
 define('select.a', 
-    function(toSelect){
+    function (toSelect) {
         this._data.selectionMessage = 'Select a ' + toSelect;
         return this._private.nodes.selectFrom;
     }
 );
 
 define('select.an',
-    function(toSelect){
+    function (toSelect) {
         this._data.selectionMessage = 'Select an ' + toSelect;
         return this._private.nodes.selectFrom;
     }
 );
 
 define('_private.nodes.selectFrom.from', 
-    function(choices){
+    function (choices) {
         this._data.selectionChoices = choices;
         return this._private.nodes.selectFromThen;
     }
 );
 
 define('_private.nodes.selectFromThen.then',
-    function(callback){
+    function (callback) {
         select(
             this._data.selectionMessage,
             this._data.selectionChoices,
@@ -277,7 +302,5 @@ define('_private.nodes.selectFromThen.then',
         return null;
     }
 );
-       
-clio = chainlang.create(clio);
 
-module.exports = clio;
+module.exports = chainlang.create(clio);
