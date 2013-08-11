@@ -150,6 +150,9 @@ function confirm(message, callback) {
     });
 };
 
+// Prompt the user to select from a list of `choices` <br/>
+// `select` will print `message`, then each key-value pair from
+// the `choices` object, then pass the result to `callback`
 function select(message, choices, callback){
     // Normalize input
     if(arguments.length === 2){
@@ -182,6 +185,44 @@ function select(message, choices, callback){
             }
         });        
     }
+}
+
+function list(tokens, maxColumns, colSep){
+    colSep = colSep || '';
+    var rowCount = Math.ceil(tokens.length / maxColumns);
+    var rows = [];
+    
+    // create an array for each row
+    for(var i = 0; i < rowCount; ++i){
+        rows.push([]);   
+    }
+
+    tokens.forEach(function(el, index){
+        rows[index % rowCount].push(el);
+    });
+    
+    // Pad columns
+    for(i = 0; i < rows[0].length; ++ i){
+        var maxWidth = 0;
+        rows.forEach(function(row){
+            if(row[i] !== undefined){
+                maxWidth = (maxWidth > row[i].length) ? maxWidth : row[i].length;
+            }
+        });
+        
+        rows.forEach(function(row){
+            var item = (row[i] !== undefined && row[i] !== null) ? row[i] : '';
+            row[i] = item + (new Array(maxWidth - item.length + 2)).join(' ');
+        });
+    }
+    
+    // Print rows
+    rows.forEach(function(row){
+        row.forEach(function(item, index){
+            write(' ' + item + colSep);
+        });
+        writeLine();
+    });
 }
 
 // Public API
@@ -309,6 +350,35 @@ define('_private.nodes.selectFromThen.then',
             this._data.selectionChoices,
             callback
         );
+        return null;
+    }
+);
+
+define('list',
+    function (tokens) {
+        if(arguments.length > 1){
+            list(tokens, arguments[1], arguments[2]);
+            return null;
+        }
+        
+        this._data.listTokens = tokens;
+        return this._private.nodes.columnsConstraint;
+    }
+);
+
+define('_private.nodes.columnsConstraint.withAtMost',
+    function(count){
+        this._data.listConstraintCount = count;
+        return this._private.nodes.columns;
+    }
+);
+
+define('_private.nodes.columns.columns',
+    function () {
+        list(
+            this._data.listTokens, 
+            this._data.listConstraintCount);
+        
         return null;
     }
 );

@@ -88,6 +88,15 @@ function doFluentSelectTest(){
         .then(function(selection){
             cli.writeLine();
             cli.writeLine('Selection was: ' + selection);
+            doFluentListTest();
         });
+}
+
+function doFluentListTest(){
+    cli.write('\n-- Testing List --\n\n');
+    
+    cli.list(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'])
+        .withAtMost(4)
+        .columns();
 }
 

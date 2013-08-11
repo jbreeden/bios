@@ -264,7 +264,7 @@ data block was not a complete line and will be saved off here.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">writeLine</span><span class="params">(line)</span> {</span>
-    process.stdout.write(line + <span class="string">'\n'</span>);
+    process.stdout.write(( line !== <span class="literal">undefined</span> ? line : <span class="string">''</span>) + <span class="string">'\n'</span>);
 }
 
 <span class="keyword">var</span> defaultPromptOptions = {
@@ -407,9 +407,7 @@ with an object mapping each prompt to its response</p>
             callback(<span class="literal">false</span>);
         }
     });
-};
-
-<span class="function"><span class="keyword">function</span> <span class="title">select</span><span class="params">(message, choices, callback)</span>{</span></pre></div></div>
+};</pre></div></div>
             
         </li>
         
@@ -420,11 +418,13 @@ with an object mapping each prompt to its response</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
-              <p>Normalize input</p>
+              <p>Prompt the user to select from a list of <code>choices</code> <br/>
+<code>select</code> will print <code>message</code>, then each key-value pair from
+the <code>choices</code> object, then pass the result to <code>callback</code></p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="function"><span class="keyword">function</span> <span class="title">select</span><span class="params">(message, choices, callback)</span>{</span></pre></div></div>
             
         </li>
         
@@ -434,6 +434,21 @@ with an object mapping each prompt to its response</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Normalize input</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Assume message omitted</p>
 
@@ -467,20 +482,12 @@ with an object mapping each prompt to its response</p>
             }
         });        
     }
-}</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-23">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-23">&#182;</a>
-              </div>
-              <h2>Public API</h2>
+}
 
-            </div>
+<span class="function"><span class="keyword">function</span> <span class="title">list</span><span class="params">(tokens, maxColumns, colSep)</span>{</span>
+    colSep = colSep || <span class="string">''</span>;
+    <span class="keyword">var</span> rowCount = Math.ceil(tokens.length / maxColumns);
+    <span class="keyword">var</span> rows = [];</pre></div></div>
             
         </li>
         
@@ -491,11 +498,17 @@ with an object mapping each prompt to its response</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
-              <p>Specification object to be passed to <code>chainlang.create</code></p>
+              <p>create an array for each row</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> cli = {};</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">for</span>(<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; rowCount; ++i){
+        rows.push([]);   
+    }
+
+    tokens.forEach(<span class="keyword">function</span>(el, index){
+        rows[index % rowCount].push(el);
+    });</pre></div></div>
             
         </li>
         
@@ -505,6 +518,82 @@ with an object mapping each prompt to its response</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Pad columns</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; rows[<span class="number">0</span>].length; ++ i){
+        <span class="keyword">var</span> maxWidth = <span class="number">0</span>;
+        rows.forEach(<span class="keyword">function</span>(row){
+            <span class="keyword">if</span>(row[i] !== <span class="literal">undefined</span>){
+                maxWidth = (maxWidth &gt; row[i].length) ? maxWidth : row[i].length;
+            }
+        });
+        
+        rows.forEach(<span class="keyword">function</span>(row){
+            <span class="keyword">var</span> item = (row[i] !== <span class="literal">undefined</span> &amp;&amp; row[i] !== <span class="literal">null</span>) ? row[i] : <span class="string">''</span>;
+            row[i] = item + (<span class="keyword">new</span> Array(maxWidth - item.length + <span class="number">2</span>)).join(<span class="string">' '</span>);
+        });
+    }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-26">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Print rows</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    rows.forEach(<span class="keyword">function</span>(row){
+        row.forEach(<span class="keyword">function</span>(item, index){
+            write(<span class="string">' '</span> + item + colSep);
+        });
+        writeLine();
+    });
+}</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <h2>Public API</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>Specification object to be passed to <code>chainlang.create</code></p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> cli = {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p><code>define</code> is a convenience function for building the spec object</p>
 
@@ -546,14 +635,24 @@ define(<span class="string">'prompt'</span>,
 
 define(<span class="string">'prompt.for'</span>, 
     <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
-        <span class="keyword">this</span>._data.promptFields = [message];
+        <span class="keyword">if</span>(message.constructor.name === <span class="string">'Array'</span>){
+            <span class="keyword">this</span>._data.promptFields = message;
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>._data.promptFields = [message];
+        }
+        
         <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
     }
 );
 
 define(<span class="string">'_private.nodes.for.and'</span>, 
     <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
-        <span class="keyword">this</span>._data.promptFields.push(message);
+        <span class="keyword">if</span>(message.constructor.name === <span class="string">'Array'</span>){
+            <span class="keyword">this</span>._data.promptFields = 
+                <span class="keyword">this</span>._data.promptFields.concat(message);
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>._data.promptFields.push(message);   
+        }
         <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
     }
 );
@@ -565,7 +664,7 @@ define(<span class="string">'_private.nodes.for.then'</span>,
     }
 );
 
-define(<span class="string">'confirm'</span>, 
+define(<span class="string">'confirm'</span>,
     <span class="function"><span class="keyword">function</span> <span class="params">(message, callback)</span> {</span>
         <span class="keyword">if</span> (callback === <span class="literal">undefined</span>) {
             <span class="keyword">this</span>._data.confirmationMessage = message;
@@ -618,6 +717,35 @@ define(<span class="string">'_private.nodes.selectFromThen.then'</span>,
             <span class="keyword">this</span>._data.selectionChoices,
             callback
         );
+        <span class="keyword">return</span> <span class="literal">null</span>;
+    }
+);
+
+define(<span class="string">'list'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">(tokens)</span> {</span>
+        <span class="keyword">if</span>(arguments.length &gt; <span class="number">1</span>){
+            list(tokens, arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]);
+            <span class="keyword">return</span> <span class="literal">null</span>;
+        }
+        
+        <span class="keyword">this</span>._data.listTokens = tokens;
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.columnsConstraint;
+    }
+);
+
+define(<span class="string">'_private.nodes.columnsConstraint.withAtMost'</span>,
+    <span class="keyword">function</span>(count){
+        <span class="keyword">this</span>._data.listConstraintCount = count;
+        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.columns;
+    }
+);
+
+define(<span class="string">'_private.nodes.columns.columns'</span>,
+    <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
+        list(
+            <span class="keyword">this</span>._data.listTokens, 
+            <span class="keyword">this</span>._data.listConstraintCount);
+        
         <span class="keyword">return</span> <span class="literal">null</span>;
     }
 );
