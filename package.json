@@ -1,0 +1,34 @@
+{
+  "name": "fluent-cli",
+  "version": "0.0.0",
+  "description": "Command-line io utilities for nodejs",
+  "main": "clio.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "dependencies": {
+    "chainlang": "~0.1.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "node ./test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jbreeden/fluent-cli"
+  },
+  "keywords": [
+    "node",
+    "io",
+    "command-line",
+    "cli",
+    "prompt"
+  ],
+  "author": "Jared Breeden <jared.breeden@gmail.com>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "40b6240b992b1d63c6b5e2e523711469694c4f23",
+  "bugs": {
+    "url": "https://github.com/jbreeden/clio/issues"
+  }
+}
