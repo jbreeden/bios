@@ -2,7 +2,7 @@
 
 <html>
 <head>
-  <title>cli.js</title>
+  <title>nio.js</title>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
   <link rel="stylesheet" media="all" href="docco.css" />
@@ -15,7 +15,7 @@
         
           <li id="title">
               <div class="annotation">
-                  <h1>cli.js</h1>
+                  <h1>nio.js</h1>
               </div>
           </li>
         
@@ -30,11 +30,7 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;
-<span class="keyword">var</span> chainlang = require(<span class="string">'chainlang'</span>);
-
-process.stdin.setEncoding(<span class="string">'utf8'</span>);
-process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div>
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> EventEmitter = require(<span class="string">'events'</span>).EventEmitter;</pre></div></div>
             
         </li>
         
@@ -45,7 +41,7 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
               <div class="pilwrap for-h2">
                 <a class="pilcrow" href="#section-2">&#182;</a>
               </div>
-              <h2>Custom Line-By-Line Input Buffer</h2>
+              <h2>Expose public API</h2>
 
             </div>
             
@@ -61,6 +57,46 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
               
             </div>
             
+            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> nio = {
+    readLine: readLine,
+    write: write,
+    writeLine: writeLine,
+    prompt: prompt,
+    confirm: confirm,
+    select: select,
+    list: list
+};
+
+module.exports = nio;
+
+process.stdin.setEncoding(<span class="string">'utf8'</span>);
+process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap for-h2">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <h2>Custom Line-By-Line Input Buffer</h2>
+
+            </div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              
+            </div>
+            
             <div class="content"><div class='highlight'><pre><span class="keyword">var</span> lineBuffer = (<span class="keyword">function</span>(){
     <span class="keyword">var</span> buffer = {};
     buffer.lines = [];
@@ -70,11 +106,11 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
         </li>
         
         
-        <li id="section-4">
+        <li id="section-6">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>Register a listener for the next line</p>
 
@@ -85,11 +121,11 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
         </li>
         
         
-        <li id="section-5">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>Call the callback once a line is ready</p>
 
@@ -101,11 +137,11 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
         </li>
         
         
-        <li id="section-6">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>On new line listener</p>
 
@@ -122,11 +158,11 @@ process.stdout.setEncoding(<span class="string">'utf8'</span>);</pre></div></div
         </li>
         
         
-        <li id="section-7">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>listeners are not bound until after the newListener event handlers
 are run, so we&#39;ll fire the event on nextTick</p>
@@ -150,11 +186,11 @@ are run, so we&#39;ll fire the event on nextTick</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Concatenate any partial line from the last data read
 onto the first line of the new data result</p>
@@ -166,11 +202,11 @@ onto the first line of the new data result</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>If the last element of the data spit was an empty string,
 as when data ends in a &#39;\n&#39;, the lastPartial will be set back
@@ -184,11 +220,11 @@ data block was not a complete line and will be saved off here.</p>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-12">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-12">&#182;</a>
               </div>
               <p>Pause input until we&#39;re out of lines again</p>
 
@@ -206,24 +242,11 @@ data block was not a complete line and will be saved off here.</p>
         </li>
         
         
-        <li id="section-11">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-11">&#182;</a>
-              </div>
-              <h2>Core Logic</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-12">
+        <li id="section-13">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
+                <a class="pilcrow" href="#section-13">&#182;</a>
               </div>
               <p>Read a line from stdin</p>
 
@@ -236,11 +259,11 @@ data block was not a complete line and will be saved off here.</p>
         </li>
         
         
-        <li id="section-13">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-13">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Write a string to stdout</p>
 
@@ -253,11 +276,11 @@ data block was not a complete line and will be saved off here.</p>
         </li>
         
         
-        <li id="section-14">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Write a line to stdout</p>
 
@@ -275,11 +298,11 @@ data block was not a complete line and will be saved off here.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Prompt the user for input. <code>prompt</code> mostly sanitizes input and routes
 to the appropriate method for actual prompting</p>
@@ -291,11 +314,11 @@ to the appropriate method for actual prompting</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Normalize arguments</p>
 
@@ -306,11 +329,11 @@ to the appropriate method for actual prompting</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>If only 2 arguments, assuming opt was omitted</p>
 
@@ -335,11 +358,11 @@ to the appropriate method for actual prompting</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Prompts for a series of values, then calls <code>callback</code>
 with an object mapping each prompt to its response</p>
@@ -368,11 +391,11 @@ with an object mapping each prompt to its response</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p><code>stringPrompt</code> function assumes inputs are sanitized/normalized</p>
 
@@ -388,11 +411,11 @@ with an object mapping each prompt to its response</p>
         </li>
         
         
-        <li id="section-20">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>y/n confirmation</p>
 
@@ -412,11 +435,11 @@ with an object mapping each prompt to its response</p>
         </li>
         
         
-        <li id="section-21">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>Prompt the user to select from a list of <code>choices</code> <br/>
 <code>select</code> will print <code>message</code>, then each key-value pair from
@@ -429,11 +452,11 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         </li>
         
         
-        <li id="section-22">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Normalize input</p>
 
@@ -444,11 +467,11 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         </li>
         
         
-        <li id="section-23">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>Assume message omitted</p>
 
@@ -492,11 +515,11 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         </li>
         
         
-        <li id="section-24">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>create an array for each row</p>
 
@@ -513,11 +536,11 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         </li>
         
         
-        <li id="section-25">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Pad columns</p>
 
@@ -540,11 +563,11 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         </li>
         
         
-        <li id="section-26">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>Print rows</p>
 
@@ -557,200 +580,6 @@ the <code>choices</code> object, then pass the result to <code>callback</code></
         writeLine();
     });
 }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-27">
-            <div class="annotation">
-              
-              <div class="pilwrap for-h2">
-                <a class="pilcrow" href="#section-27">&#182;</a>
-              </div>
-              <h2>Public API</h2>
-
-            </div>
-            
-        </li>
-        
-        
-        <li id="section-28">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
-              </div>
-              <p>Specification object to be passed to <code>chainlang.create</code></p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> cli = {};</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-29">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
-              </div>
-              <p><code>define</code> is a convenience function for building the spec object</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre><span class="keyword">var</span> define = chainlang.append.bind(cli);
-
-define(<span class="string">'readLine'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
-        readLine(callback);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'write'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(str)</span> {</span>
-        write(str);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'writeLine'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(line)</span> {</span>
-        writeLine(line);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'prompt'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(message, opt, callback)</span> {</span>
-        <span class="keyword">if</span>(arguments.length === <span class="number">2</span>){
-            callback = opt;
-            opt = {};
-        }
-        prompt(message, opt, callback);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'prompt.for'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
-        <span class="keyword">if</span>(message.constructor.name === <span class="string">'Array'</span>){
-            <span class="keyword">this</span>._data.promptFields = message;
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>._data.promptFields = [message];
-        }
-        
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
-    }
-);
-
-define(<span class="string">'_private.nodes.for.and'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(message)</span> {</span>
-        <span class="keyword">if</span>(message.constructor.name === <span class="string">'Array'</span>){
-            <span class="keyword">this</span>._data.promptFields = 
-                <span class="keyword">this</span>._data.promptFields.concat(message);
-        } <span class="keyword">else</span> {
-            <span class="keyword">this</span>._data.promptFields.push(message);   
-        }
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.<span class="keyword">for</span>;
-    }
-);
-
-define(<span class="string">'_private.nodes.for.then'</span>, 
-   <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
-        prompt(<span class="keyword">this</span>._data.promptFields, callback);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'confirm'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(message, callback)</span> {</span>
-        <span class="keyword">if</span> (callback === <span class="literal">undefined</span>) {
-            <span class="keyword">this</span>._data.confirmationMessage = message;
-            <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.confirm;   
-        } <span class="keyword">else</span> {
-            confirm(message, callback);
-        }
-    }
-);
-
-define(<span class="string">'_private.nodes.confirm.then'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
-        confirm(<span class="keyword">this</span>._data.confirmationMessage, callback);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'select'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(message, choices, callback)</span> {</span>
-        select(message, choices, callback);
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'select.a'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(toSelect)</span> {</span>
-        <span class="keyword">this</span>._data.selectionMessage = <span class="string">'Select a '</span> + toSelect;
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFrom;
-    }
-);
-
-define(<span class="string">'select.an'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(toSelect)</span> {</span>
-        <span class="keyword">this</span>._data.selectionMessage = <span class="string">'Select an '</span> + toSelect;
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFrom;
-    }
-);
-
-define(<span class="string">'_private.nodes.selectFrom.from'</span>, 
-    <span class="function"><span class="keyword">function</span> <span class="params">(choices)</span> {</span>
-        <span class="keyword">this</span>._data.selectionChoices = choices;
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.selectFromThen;
-    }
-);
-
-define(<span class="string">'_private.nodes.selectFromThen.then'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(callback)</span> {</span>
-        select(
-            <span class="keyword">this</span>._data.selectionMessage,
-            <span class="keyword">this</span>._data.selectionChoices,
-            callback
-        );
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-define(<span class="string">'list'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">(tokens)</span> {</span>
-        <span class="keyword">if</span>(arguments.length &gt; <span class="number">1</span>){
-            list(tokens, arguments[<span class="number">1</span>], arguments[<span class="number">2</span>]);
-            <span class="keyword">return</span> <span class="literal">null</span>;
-        }
-        
-        <span class="keyword">this</span>._data.listTokens = tokens;
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.columnsConstraint;
-    }
-);
-
-define(<span class="string">'_private.nodes.columnsConstraint.withAtMost'</span>,
-    <span class="keyword">function</span>(count){
-        <span class="keyword">this</span>._data.listConstraintCount = count;
-        <span class="keyword">return</span> <span class="keyword">this</span>._private.nodes.columns;
-    }
-);
-
-define(<span class="string">'_private.nodes.columns.columns'</span>,
-    <span class="function"><span class="keyword">function</span> <span class="params">()</span> {</span>
-        list(
-            <span class="keyword">this</span>._data.listTokens, 
-            <span class="keyword">this</span>._data.listConstraintCount);
-        
-        <span class="keyword">return</span> <span class="literal">null</span>;
-    }
-);
-
-module.exports = chainlang.create(cli);</pre></div></div>
             
         </li>
         
