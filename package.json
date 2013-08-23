@@ -1,35 +1,33 @@
 {
-  "name": "fluent-cli",
+  "name": "nio",
   "version": "0.0.0",
-  "description": "Command-line io utilities for nodejs",
-  "main": "cli.js",
+  "description": "A simple command line IO library for nodejs",
+  "main": "nio.js",
   "directories": {
     "doc": "docs"
   },
-  "dependencies": {
-    "chainlang": "~0.1.2"
-  },
+  "dependencies": {},
   "devDependencies": {},
   "scripts": {
-    "test": "node ./test.js"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jbreeden/fluent-cli"
+    "url": "https://github.com/jbreeden/nio.git"
   },
   "keywords": [
-    "node",
-    "io",
-    "command-line",
     "cli",
     "prompt",
-    "fluent"
+    "io",
+    "command-line",
+    "node",
+    "stdio"
   ],
   "author": "Jared Breeden <jared.breeden@gmail.com>",
   "license": "MIT",
   "readmeFilename": "README.md",
-  "gitHead": "40b6240b992b1d63c6b5e2e523711469694c4f23",
+  "gitHead": "644ac7ca0d9ad555a132fa36c265b5ac10a4427c",
   "bugs": {
-    "url": "https://github.com/jbreeden/fluent-cli/issues"
+    "url": "https://github.com/jbreeden/nio/issues"
   }
 }

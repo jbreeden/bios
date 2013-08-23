@@ -1,102 +1,60 @@
-var cli = require('./cli');
+var nio = require('./nio');
 var util = require('util');
 
-cli.write('\n-- Testing Standard Prompt --\n\n');
+runCliTests();
 
-cli.prompt('This is a standard prompt', function(response){
-    cli.writeLine();
-    cli.writeLine('Response was: ' + response);
-    doFluentPromptTest();
-});
-
-function doFluentPromptTest(){
-    cli.write('\n-- Testing Fluent Prompt --\n\n');
-    
-    cli.prompt
-        .for('name')
-        .and('email')
-        .then(function(response){
-            cli.writeLine();
-            cli.writeLine('name was: ' + response.name);
-            cli.writeLine('email was: ' + response.email);
-            doFluentArrayPromptTest();
-        });
-}
-
-function doFluentArrayPromptTest(){
-    cli.write('\n-- Testing Fluent Array Prompt --\n\n');
-    
-    cli.prompt
-        .for(['name', 'email'])
-        .and('address')
-        .then(function(response){
-            cli.writeLine();
-            cli.writeLine('name was: ' + response.name);
-            cli.writeLine('email was: ' + response.email);
-            cli.writeLine('address was: ' + response.address);
-            doStandardConfirmationTest();
-        });
-}
-
-function doStandardConfirmationTest() {
-    cli.write('\n-- Testing Standard Confirmation --\n\n');
-    
-    cli.confirm('Does the standard confirm work?', function(response){
-        cli.writeLine();
-        cli.writeLine('confirmation was: ' + response);
-        doFluentConfirmationTest();
+function runCliTests(){
+    nio.write('Writing output. ');
+    nio.writeLine('Writing an output line.');
+    nio.writeLine('Now you try...');
+    nio.readLine(function (line) {
+        nio.writeLine('You wrote: ' + line);
+        testStringPrompt();
     });
-}
-
-function doFluentConfirmationTest() {
-    cli.write('\n-- Testing Fluent Confirmation --\n\n');
     
-    cli.confirm('Does the fluent confirm work?')
-        .then(function(response){
-            cli.writeLine();
-            cli.writeLine('confirmation was: ' + response);
-            doStandardSelectTest();
+    function testStringPrompt(){
+        nio.prompt('This is string prompt', function(reponse){
+            nio.writeLine('Reponse: ' + reponse);
+            testArrayPrompt();
         });
-}
-
-function doStandardSelectTest(){
-    cli.write('\n-- Testing Standard Selection --\n\n');
+    };
     
-    cli.select(
-        "Select a standard option", 
-        { 
-            1: 'Do this',
-            2: 'Do that', 
-            3: 'Do this other thing'
-        },
-        function(selection){
-            cli.writeLine();
-            cli.writeLine('Selection was: ' + selection);
-            doFluentSelectTest();
+    function testArrayPrompt(){
+        nio.writeLine('Please enter your information...');
+        nio.prompt(['Name', 'DOB', 'Favorite Color'], function(answers){
+            nio.writeLine('Name was: ' + answers.Name);
+            nio.writeLine('DOB was: ' + answers.DOB);
+            nio.writeLine('Favorite Color was: ' + answers['Favorite Color']);
+            testConfirm();
         });
-}
-
-function doFluentSelectTest(){
-    cli.write('\n-- Testing Fluent Selection --\n\n');
+    }
     
-    cli.select.a('fluent option')
-        .from({
-            1: 'Do this fluently',
-            2: 'Do that fluently',
-            3: 'Do this other thing fluently'
-        })
-        .then(function(selection){
-            cli.writeLine();
-            cli.writeLine('Selection was: ' + selection);
-            doFluentListTest();
+    function testConfirm(){
+        nio.confirm('Do you perform io?', function(response){
+            nio.writeLine('I see, you do ' + (response ? '' : 'not ') + 'perform io.');
+            testSelect();
         });
-}
-
-function doFluentListTest(){
-    cli.write('\n-- Testing List --\n\n');
+    }
     
-    cli.list(['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'])
-        .withAtMost(4)
-        .columns();
+    function testSelect(){
+        var options = {
+            1: 'Option 1',
+            2: 'Option 2'
+        };
+        
+        nio.select('Select an option...', options, function(selection){
+            nio.writeLine('You selected: ' + selection);
+            testList();
+        });
+    }
+    
+    function testList(){
+        nio.writeLine('Printing a list with at most 2 columns');
+        
+        var items = [
+            'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'
+        ];
+        
+        nio.list(items, 2);
+    }
 }
-

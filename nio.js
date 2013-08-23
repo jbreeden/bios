@@ -1,5 +1,19 @@
 var EventEmitter = require('events').EventEmitter;
-var chainlang = require('chainlang');
+
+// Expose public API
+// -----------------
+
+var nio = {
+    readLine: readLine,
+    write: write,
+    writeLine: writeLine,
+    prompt: prompt,
+    confirm: confirm,
+    select: select,
+    list: list
+};
+
+module.exports = nio;
 
 process.stdin.setEncoding('utf8');
 process.stdout.setEncoding('utf8');
@@ -63,9 +77,6 @@ var lineBuffer = (function(){
     
     return buffer;
 }());
-
-// Core Logic
-// ----------
 
 // Read a line from stdin
 function readLine(callback) {
@@ -224,163 +235,3 @@ function list(tokens, maxColumns, colSep){
         writeLine();
     });
 }
-
-// Public API
-// ----------
-
-// Specification object to be passed to `chainlang.create`
-var cli = {};
-
-// `define` is a convenience function for building the spec object
-var define = chainlang.append.bind(cli);
-
-define('readLine',
-    function (callback) {
-        readLine(callback);
-        return null;
-    }
-);
-
-define('write',
-    function (str) {
-        write(str);
-        return null;
-    }
-);
-
-define('writeLine', 
-    function (line) {
-        writeLine(line);
-        return null;
-    }
-);
-
-define('prompt', 
-    function (message, opt, callback) {
-        if(arguments.length === 2){
-            callback = opt;
-            opt = {};
-        }
-        prompt(message, opt, callback);
-        return null;
-    }
-);
-
-define('prompt.for', 
-    function (message) {
-        if(message.constructor.name === 'Array'){
-            this._data.promptFields = message;
-        } else {
-            this._data.promptFields = [message];
-        }
-        
-        return this._private.nodes.for;
-    }
-);
-
-define('_private.nodes.for.and', 
-    function (message) {
-        if(message.constructor.name === 'Array'){
-            this._data.promptFields = 
-                this._data.promptFields.concat(message);
-        } else {
-            this._data.promptFields.push(message);   
-        }
-        return this._private.nodes.for;
-    }
-);
-
-define('_private.nodes.for.then', 
-   function (callback) {
-        prompt(this._data.promptFields, callback);
-        return null;
-    }
-);
-
-define('confirm',
-    function (message, callback) {
-        if (callback === undefined) {
-            this._data.confirmationMessage = message;
-            return this._private.nodes.confirm;   
-        } else {
-            confirm(message, callback);
-        }
-    }
-);
-
-define('_private.nodes.confirm.then', 
-    function (callback) {
-        confirm(this._data.confirmationMessage, callback);
-        return null;
-    }
-);
-
-define('select', 
-    function (message, choices, callback) {
-        select(message, choices, callback);
-        return null;
-    }
-);
-
-define('select.a', 
-    function (toSelect) {
-        this._data.selectionMessage = 'Select a ' + toSelect;
-        return this._private.nodes.selectFrom;
-    }
-);
-
-define('select.an',
-    function (toSelect) {
-        this._data.selectionMessage = 'Select an ' + toSelect;
-        return this._private.nodes.selectFrom;
-    }
-);
-
-define('_private.nodes.selectFrom.from', 
-    function (choices) {
-        this._data.selectionChoices = choices;
-        return this._private.nodes.selectFromThen;
-    }
-);
-
-define('_private.nodes.selectFromThen.then',
-    function (callback) {
-        select(
-            this._data.selectionMessage,
-            this._data.selectionChoices,
-            callback
-        );
-        return null;
-    }
-);
-
-define('list',
-    function (tokens) {
-        if(arguments.length > 1){
-            list(tokens, arguments[1], arguments[2]);
-            return null;
-        }
-        
-        this._data.listTokens = tokens;
-        return this._private.nodes.columnsConstraint;
-    }
-);
-
-define('_private.nodes.columnsConstraint.withAtMost',
-    function(count){
-        this._data.listConstraintCount = count;
-        return this._private.nodes.columns;
-    }
-);
-
-define('_private.nodes.columns.columns',
-    function () {
-        list(
-            this._data.listTokens, 
-            this._data.listConstraintCount);
-        
-        return null;
-    }
-);
-
-module.exports = chainlang.create(cli);
