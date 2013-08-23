@@ -1,5 +1,4 @@
 var nio = require('./nio');
-var util = require('util');
 
 runCliTests();
 
