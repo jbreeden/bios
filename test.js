@@ -1,9 +1,8 @@
 var nio = require('./nio');
-var util = require('util');
 
-runCliTests();
+runNioTests();
 
-function runCliTests(){
+function runNioTests(){
     nio.write('Writing output. ');
     nio.writeLine('Writing an output line.');
     nio.writeLine('Now you try...');

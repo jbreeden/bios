@@ -1,4 +1,4 @@
-nio
----
+bios
+----
 
-A simple command line IO library for nodejs. See test.js for usage.
+A basic input output system for nodejs.
