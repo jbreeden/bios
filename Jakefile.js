@@ -5,6 +5,6 @@ namespace('docs', function(){
     
     desc('Builds the annotated source');
     task('source', ['docs'], function(){
-        exec('docco -o ./docs ./nio.js');
+        exec('docco -o ./docs ./bios.js');
     });
 });
