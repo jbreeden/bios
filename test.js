@@ -1,8 +1,8 @@
 var bios = require('./bios');
 
-runbiosTests();
+runBiosTests();
 
-function runbiosTests(){
+function runBiosTests(){
     bios.write('Writing output. ');
     bios.writeLine('Writing an output line.');
     bios.writeLine('Now you try...');
