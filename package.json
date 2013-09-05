@@ -1,8 +1,8 @@
 {
-  "name": "nio",
+  "name": "bios",
   "version": "0.0.0",
-  "description": "A simple command line IO library for nodejs",
-  "main": "nio.js",
+  "description": "A basic input output system for nodejs",
+  "main": "bios.js",
   "directories": {
     "doc": "docs"
   },
@@ -13,9 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jbreeden/nio.git"
+    "url": "https://github.com/jbreeden/bios"
   },
   "keywords": [
+    "bios",
     "cli",
     "prompt",
     "io",
@@ -28,6 +29,6 @@
   "readmeFilename": "README.md",
   "gitHead": "644ac7ca0d9ad555a132fa36c265b5ac10a4427c",
   "bugs": {
-    "url": "https://github.com/jbreeden/nio/issues"
+    "url": "https://github.com/jbreeden/bios/issues"
   }
 }

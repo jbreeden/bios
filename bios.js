@@ -3,7 +3,7 @@ var EventEmitter = require('events').EventEmitter;
 // Expose public API
 // -----------------
 
-var nio = {
+var bios = {
     readLine: readLine,
     write: write,
     writeLine: writeLine,
@@ -13,7 +13,7 @@ var nio = {
     list: list
 };
 
-module.exports = nio;
+module.exports = bios;
 
 process.stdin.setEncoding('utf8');
 process.stdout.setEncoding('utf8');
